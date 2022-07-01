@@ -25,11 +25,15 @@ export default function Home(){
 
 
     function handleNewAddSkill() { 
-        const data = {
-            id: String(new Date().getTime()),
-            name: newSkill
+        if(newSkill.trim()) {
+            const data = {
+                id: String(new Date().getTime()),
+                name: newSkill
+            }
+            setMySkills(oldState => [...oldState, data]);
+            setNewSkill(" ");
         }
-        setMySkills(oldState => [...oldState, data]);
+
     }
 
     function handleRemoveSkill(id: string) {
@@ -38,24 +42,24 @@ export default function Home(){
 
     function updateGreeting() {
         const date = new Date().getHours();
+        console.log(date.toString());
         setHour(date);
-        if (hour < 12) {
+        if (date < 12) {
             setGreeting('Good morning');
-        } else if (hour > 12 && hour < 18) {
+        } else if (date >= 12 && date < 18) {
             setGreeting('Good afternoon');
         } else {
             setGreeting('Good night');
         }
     }
 
-    
 
     useEffect(() => {
         const ONE_MINUTE = 60000 ;
         setInterval(() => {
             updateGreeting();
         }, ONE_MINUTE);
-    }, [hour, newSkill]);
+    }, [hour]);
 
     useEffect(() => {
         updateGreeting();
@@ -73,7 +77,10 @@ export default function Home(){
                 placeholder="New Skill"
                 placeholderTextColor="#555"
                 onChangeText={setNewSkill}
-            />
+
+            >
+                {newSkill}
+            </TextInput>
 
             <Button 
                 onPress={handleNewAddSkill}
