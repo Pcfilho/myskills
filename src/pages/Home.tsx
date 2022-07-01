@@ -11,18 +11,34 @@ import {
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
 
+interface SkillData {
+    id: string;
+    name: string;
+}
+
 export default function Home(){
-    const [newSkill, setNewSkill] = useState();
-    const [mySkills, setMySkills] = useState([]);
+    const [newSkill, setNewSkill] = useState('');
+    const [mySkills, setMySkills] = useState<SkillData[]>([]);
     const [greeting, setGreeting] = useState('');
+    const [hour, setHour] = useState<number>(0);
+
+
 
     function handleNewAddSkill() { 
-        setMySkills(oldState => [...oldState, newSkill]);
+        const data = {
+            id: String(new Date().getTime()),
+            name: newSkill
+        }
+        setMySkills(oldState => [...oldState, data]);
     }
 
-    useEffect(() => {
-        const hour = new Date().getHours();
+    function handleRemoveSkill(id: string) {
+        setMySkills(oldState => oldState.filter(skill => skill.id !== id));
+    }
 
+    function updateGreeting() {
+        const date = new Date().getHours();
+        setHour(date);
         if (hour < 12) {
             setGreeting('Good morning');
         } else if (hour > 12 && hour < 18) {
@@ -30,7 +46,19 @@ export default function Home(){
         } else {
             setGreeting('Good night');
         }
+    }
 
+    
+
+    useEffect(() => {
+        const ONE_MINUTE = 60000 ;
+        setInterval(() => {
+            updateGreeting();
+        }, ONE_MINUTE);
+    }, [hour, newSkill]);
+
+    useEffect(() => {
+        updateGreeting();
     }, [])
 
     return (
@@ -47,7 +75,10 @@ export default function Home(){
                 onChangeText={setNewSkill}
             />
 
-            <Button onPress={handleNewAddSkill}/>
+            <Button 
+                onPress={handleNewAddSkill}
+                title="New"
+            />
             
             <Text style={[styles.title, { marginTop: 50}]}>
                 My Skills
@@ -55,9 +86,12 @@ export default function Home(){
 
             <FlatList
                 data={mySkills}
-                keyExtractor={item => item}
+                keyExtractor={item => item.id}
                 renderItem={({item}) => (
-                    <SkillCard skill={item} />
+                    <SkillCard 
+                        skill={item.name} 
+                        onPress={() => handleRemoveSkill(item.id)}
+                    />
                 )}
             />
         </View>
@@ -68,9 +102,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#121015',
-        paddingHorizontal: 70,
+        paddingHorizontal: 30,
         paddingVertical: 50,
-        paddingHorizontal: 30
     },
     title: {
         color: '#fff',
@@ -81,7 +114,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#1F1E25',
         color: '#fff',
         fontSize: 18,
-        padding: Platform.IS === 'ios' ? 15 : 10,
+        padding: Platform.OS === 'ios' ? 15 : 10,
         marginTop: 20,
         borderRadius: 8
     },
