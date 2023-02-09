@@ -39,7 +39,6 @@ export default function Home() {
 
   function updateGreeting() {
     const date = new Date().getHours();
-    console.log(date.toString());
     setHour(date);
     if (date < 12) {
       setGreeting('Good morning');
